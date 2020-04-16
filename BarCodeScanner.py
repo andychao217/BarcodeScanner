@@ -1,5 +1,4 @@
 import tkinter
-import base64
 import webbrowser
 import pyzbar.pyzbar as pyzbar
 from PIL import ImageGrab, Image, ImageEnhance
@@ -19,11 +18,13 @@ def scanBarcode(event, scanType):
     barcodes = pyzbar.decode(img)
     barcodeData = []
     for barcode in barcodes:
-        data = barcode.data.decode("utf-8")
-        dataStr = (base64.b64decode(data)).decode()
-        barcodeData.append(dataStr)
-        url = 'https://cs.spon.com.cn/pdf/instruction/' + dataStr + scanType + '.pdf'
-        webbrowser.open(url, new=0)
+       data = barcode.data.decode("utf-8")
+       barcodeData.append(data)
+       if scanType == '用户指南':
+           url = 'https://cs.spon.com.cn/pdf/instruction/' + data + scanType + '.pdf'
+       else:
+           url = 'https://cs.spon.com.cn/pdf/installinstruction/' + data + scanType + '.pdf'
+       webbrowser.open(url, new=0)
     #print(barcodeData)
 
         
@@ -37,9 +38,9 @@ btnScan = tkinter.Button(MainForm, text="用户指南", fg="black", width="15")
 btnScan.pack(side="left", pady="5m", padx="5m")
 btnScan.bind("<Button-1>", handlerAdaptor(scanBarcode, scanType='用户指南'))
 
-btnScan2 = tkinter.Button(MainForm, text="快速安装手册", fg="black", width="20")
+btnScan2 = tkinter.Button(MainForm, text="快速安装指南", fg="black", width="20")
 btnScan2.pack(side="left", pady="5m", padx="5m")
-btnScan2.bind("<Button-1>", handlerAdaptor(scanBarcode, scanType='快速安装手册'))
+btnScan2.bind("<Button-1>", handlerAdaptor(scanBarcode, scanType='快速安装指南'))
 
 MainForm.mainloop()
 
