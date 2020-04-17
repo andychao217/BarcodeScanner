@@ -8,6 +8,7 @@ def handlerAdaptor(fun, **kwds):
     return lambda event,fun=fun,kwds=kwds: fun(event, **kwds)
 
 def scanBarcode(event, scanType):
+    resStr.set("")
     img = ImageGrab.grab()
     #img = Image.open(im)
     #img = ImageEnhance.Brightness(img).enhance(2.0)#增加亮度
@@ -18,29 +19,44 @@ def scanBarcode(event, scanType):
     barcodes = pyzbar.decode(img)
     barcodeData = []
     for barcode in barcodes:
-       data = barcode.data.decode("utf-8")
-       barcodeData.append(data)
-       if scanType == '用户指南':
-           url = 'https://cs.spon.com.cn/pdf/instruction/' + data + scanType + '.pdf'
-       else:
-           url = 'https://cs.spon.com.cn/pdf/installinstruction/' + data + scanType + '.pdf'
-       webbrowser.open(url, new=0)
+        barcodeType = barcode.type
+        print(barcodeType)
+        data = barcode.data.decode("utf-8")
+        barcodeData.append(data)
+        if barcodeType == 'QRCODE':
+            if scanType == '用户指南':
+                url = 'https://cs.spon.com.cn/pdf/instruction/' + data + scanType + '.pdf'
+            else:
+                url = 'https://cs.spon.com.cn/pdf/installinstruction/' + data + scanType + '.pdf'
+            webbrowser.open(url, new=0)
+            resStr.set(data)
     #print(barcodeData)
 
         
 MainForm = tkinter.Tk()
 MainForm.wm_attributes('-topmost',1)
-MainForm.geometry("300x80")
+MainForm.geometry("330x80")
 MainForm.title("二维码识别程序")
 MainForm.resizable(width = False, height = False)
-MainForm['background']='LightSlateGray'
-btnScan = tkinter.Button(MainForm, text="用户指南", fg="black", width="15")
-btnScan.pack(side="left", pady="5m", padx="5m")
+MainForm['background']='#f7f9fa'
+
+btnScan = tkinter.Button(MainForm, text="用户指南", fg="white", width="20", bg="#00d1b2", cursor="hand2")
 btnScan.bind("<Button-1>", handlerAdaptor(scanBarcode, scanType='用户指南'))
 
-btnScan2 = tkinter.Button(MainForm, text="快速安装指南", fg="black", width="20")
-btnScan2.pack(side="left", pady="5m", padx="5m")
+btnScan2 = tkinter.Button(MainForm, text="快速安装指南", fg="white", width="20", bg="#23d160", cursor="hand2")
 btnScan2.bind("<Button-1>", handlerAdaptor(scanBarcode, scanType='快速安装指南'))
+
+label1 = tkinter.Label(MainForm, text="识别结果", width="20", fg="black")
+
+resStr = tkinter.StringVar()
+resStr.set("")
+label2 = tkinter.Label(MainForm, textvariable=resStr, width="23", fg="black")
+
+btnScan.place(x=10, y=10)
+btnScan2.place(x=170, y=10)
+
+label1.place(x=10, y=50)
+label2.place(x=153, y=50)
 
 MainForm.mainloop()
 
